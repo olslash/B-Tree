@@ -78,6 +78,8 @@ BNode.prototype.insert = function(datum) {
     }
   }
 };
+
+
 /**
  * Look for a specified key in the tree, and return the node 
  * where it exists, or where it should exist.
@@ -121,14 +123,6 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
       // there is either room to add, and I belong here, or
       // a split is needed, which must in any event start at this node.
       return this;
-
-      // if(this.children.length < this.order) {
-      //   // there is room to add; i belong here.
-      //   return this;
-      // } else {
-      //   //a split is necessary, which starts at this node
-      //   return this
-      // }
     }
 
 // A thought-- you only ever add to the --lowest level-- of leaf nodes
@@ -141,9 +135,7 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
  * @param  {string} key  The key to be retrieved from the tree
  * @return {any}         The value assocaited with the key
  */
-BNode.prototype.locate = function(searchKey) {
-  //look at each of the keys in this node
-  
+BNode.prototype.locate = function(searchKey) {  
   var position;
   var nodeToSearch = this.findPositionOfKey(searchKey);
 
