@@ -5,10 +5,10 @@ describe('b-tree()', function() {
 
   var node;
   beforeEach(function() {
-    node = new BNode(5, [
+    node = new BNode(4, [
       ['b', 'val of b'],
       ['c', 'val of c'],
-      ['d', 'val of d']
+      ['e', 'val of e']
     ]);
   });
 
@@ -16,11 +16,11 @@ describe('b-tree()', function() {
 
 
     it('has order, keys, and children properties', function() {
-      expect(node.order).to.eql(5);
+      expect(node.order).to.eql(4);
       expect(node.keys).to.eql([
         ['b', 'val of b'],
         ['c', 'val of c'],
-        ['d', 'val of d']
+        ['e', 'val of e']
       ]);
       expect(node.children).to.eql([]);
     });
@@ -29,8 +29,14 @@ describe('b-tree()', function() {
   describe('findPositionOfKey', function() {
     it('finds the node where the specified key exists, or should exist',
       function() {
-        expect(node.findPositionOfKey('d')).to.equal(node);
+        expect(node.findPositionOfKey('e')).to.equal(node);
         expect(node.findPositionOfKey('a')).to.equal(node);
+
+        node.keys.unshift(['a', 'val of a']);
+        node.children.push(new BNode(4));
+        expect(node.findPositionOfKey('a')).to.equal(node);
+        // node.keys.unshift(['a', 'val of a']);
+
 
       });
   });
@@ -38,7 +44,7 @@ describe('b-tree()', function() {
   describe('locate', function() {
 
     beforeEach(function() {
-      node.children = [new BNode(5), new BNode(5), new BNode(5), new BNode(5)];
+      node.children = [new BNode(4), new BNode(4), new BNode(4), new BNode(4)];
     });
 
     it('finds the correct position when there is only a single node',
@@ -48,13 +54,10 @@ describe('b-tree()', function() {
 
     it('finds the correct position when there are multiple nodes',
       function() {
-        node.children[2].keys = [
-          ['d', 'val of d'],
-          ['e', 'val of e'],
-          ['f', 'val of f']
-        ];
+        node.children[2].keys = [['d', 'val of d']];
 
-        expect(node.locate('e')).to.equal('val of e');
+        expect(node.findPositionOfKey('d')).to.equal(node.children[2]);
+        // expect(node.locate('e')).to.equal('val of e');
       });
   });
 
@@ -63,15 +66,14 @@ describe('b-tree()', function() {
 
     });
 
-    it('inserts a key into a root node with space available', function() {
-      var aval = ['a', 'val of a'];
-      var fval = ['f', 'val of f'];
-
-      node.insert(fval);
-      node.insert(aval);
-
-      expect(node.keys[0]).to.eql(aval);
+    it('fails to insert a key that already exists in the tree', function() {
+      expect(node.insert('b')).to.equal(false);
     });
+
+    it('inserts a key into a tree with a non-full, leaf root node', function() {
+      expect(node.insert(['d', 'val of d'])).to.equal(true);
+      expect(node.keys[2][1]).to.equal('val of d')
+    });    
   });
   // Add more assertions here
 });

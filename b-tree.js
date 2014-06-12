@@ -54,25 +54,36 @@ var BNode = function(order, initial) {
  */
 BNode.prototype.insert = function(datum) {
   // first search for the key of the datum
+  var startPosition = this.findPositionOfKey(datum[0]);
+  var searchKey = datum[0];
+  // element already exists in the tree
+  if (startPosition.locate(searchKey)) { return false; }
 
-  // var datumKey = Object.keys(datum)[0];
-  // if(datumKey.length === 0) {
-  //   //base case-- adding a root
-  //   this.keys.push(datum);
-  // } else {
-  //   // root node has keys--
-  //   // verify root has no more than (order - 1) keys
-  // }
-  // // this.find(key);
 
+  // from startPosition,
+  // If the node contains fewer than the maximum legal number of elements, 
+  // then there is room for the new element. 
+  // Insert the new element in the node, keeping the node's elements ordered.
+  if (startPosition.keys.length < startPosition.order) {
+    for (var i = 0; i < startPosition.keys.length; i++) {
+
+      if (searchKey < startPosition.keys[i][0]) {
+        // Node goes here
+        startPosition.keys.splice(i, 0, datum);
+        return true;
+      } else {
+        // Full node; split
+
+      }
+    }
+  }
 };
-
 /**
  * Look for a specified key in the tree, and return the node 
  * where it exists, or where it should exist.
  * 
  * @param  {string} searchKey  The key to be found in the tree
- * @return {integer}           the leaf node where <searchKey> either exists, 
+ * @return {BNode}             The leaf node where <searchKey> either exists, 
  *                             or would exist were it entered. 
  */
 
@@ -83,7 +94,7 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
     // look in my own keys, to find where this node does or should exist
     if (this.keys[i][0] === searchKey) {
       return this; 
-    } else if (searchKey < this.keys[i][0] || this.keys[i][0] === undefined) {
+    } else if (searchKey < this.keys[i][0]) { //|| this.keys[i][0] === undefined) {
       // if the key I'm looking for is < the key I'm looking at, 
       // or I'm at the last key...
       position = i;
@@ -91,9 +102,9 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
     }
 
     // if searchkey < thiskey, look at child at index(thiskey)
-    // if there is no child left, and length of children < order,
+    // if there are no children left, and length of children < order,
     //  return this-- we belong here.
-    // if there is no child left, and length of children == order,
+    // if there are no children left, and length of children == order,
     //   a split is necessary:
     //     insert searchkey at the correct index, bringing length to order + 1
     //     take the median key, and bring it up into a new node
@@ -105,8 +116,22 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
     if(this.children[position]) {
       // if we have a child at the necessary position
       return this.children[position].findPositionOfKey(searchKey);
+    } else {
+      // no children are left in the chain
+      // there is either room to add, and I belong here, or
+      // a split is needed, which must in any event start at this node.
+      return this;
+
+      // if(this.children.length < this.order) {
+      //   // there is room to add; i belong here.
+      //   return this;
+      // } else {
+      //   //a split is necessary, which starts at this node
+      //   return this
+      // }
     }
 
+// A thought-- you only ever add to the --lowest level-- of leaf nodes
    
 };
 
@@ -118,15 +143,15 @@ BNode.prototype.findPositionOfKey = function(searchKey) {
  */
 BNode.prototype.locate = function(searchKey) {
   //look at each of the keys in this node
+  
   var position;
-  for (var i = 0; i < this.keys.length; i++) {
-    if (this.keys[i][0] === searchKey) {
-      // We've found it
+  var nodeToSearch = this.findPositionOfKey(searchKey);
+
+  for (var i = 0; i < nodeToSearch.keys.length; i++) {
+    if(nodeToSearch.keys[i][0] === searchKey) {
       return this.keys[i][1];
     } else if (searchKey > this.keys[i][0]) {
-      position = i;
+      return false;
     }
   }
-
-  return this.children[position].locate(searchKey);
 };
